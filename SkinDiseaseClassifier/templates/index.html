@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>피부 질환 예측기</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding-top: 10px;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 600px;
+            margin: auto;
+        }
+
+        .file-input-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .custom-file-upload {
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .file-name {
+            font-size: 0.95em;
+            color: #333;
+        }
+
+        img {
+            margin-top: 20px;
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+
+        input[type="submit"] {
+            padding: 8px 16px;
+            border: none;
+            background-color: #28a745;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>피부 질환 예측기</h1><br>
+
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <div class="file-input-wrapper">
+            <label class="custom-file-upload">
+                파일 선택
+                <input type="file" name="file" id="file-input" accept="image/*" required onchange="updateFileName(); previewImage();">
+            </label>
+            <span class="file-name" id="file-name">선택된 파일 없음</span>
+        </div>
+
+        <br><input type="submit" value="예측하기"><br>
+
+        <!-- 이미지 미리보기 영역 -->
+        <img id="preview" style="display: none;" alt="이미지 미리보기">
+        
+        {% if image_data %}
+            <img src="data:image/jpeg;base64,{{ image_data }}" alt="업로드한 이미지">
+        {% endif %}
+    </form>
+
+    {% if prediction %}
+        <div class="result">
+            <h3>예측 결과</h3>
+            <p><strong>질환 분류:</strong> {{ prediction['class'] }}</p>
+            <p><strong>정확도:</strong> {{ (prediction['confidence'] * 100) | round(1) }}%</p>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    function updateFileName() {
+        const fileInput = document.getElementById('file-input');
+        const fileNameDisplay = document.getElementById('file-name');
+        fileNameDisplay.textContent = fileInput.files.length > 0 ? fileInput.files[0].name : '선택된 파일 없음';
+    }
+
+    function previewImage() {
+        const fileInput = document.getElementById('file-input');
+        const preview = document.getElementById('preview');
+
+        if (fileInput.files && fileInput.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            }
+            reader.readAsDataURL(fileInput.files[0]);
+        } else {
+            preview.src = '';
+            preview.style.display = 'none';
+        }
+    }
+</script>
+</body>
+</html>

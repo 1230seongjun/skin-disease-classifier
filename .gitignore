@@ -1,0 +1,7 @@
+Model/
+__pycache__/
+*.pyc
+.env
+venv/
+.venv/
+피부질환사진/
